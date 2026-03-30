@@ -3,225 +3,212 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Fuji Trip - Final Secure</title>
+    <title>Fuji Final Pro</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
-        body { font-family: 'Noto Sans TC', sans-serif; background: #000; color: #1E293B; overflow-x: hidden; }
+        body { font-family: 'Noto Sans TC', sans-serif; background: #000; color: #1E293B; }
+        /* 1. 富士山背景回歸 */
         .fuji-bg {
-            background: url('https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=2070&auto=format&fit=crop') no-repeat center center fixed;
+            background: url('https://images.unsplash.com/photo-1570116526048-af571b5a3b91?q=80&w=2070&auto=format&fit=crop') no-repeat center center fixed;
             background-size: cover; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
         }
-        .glass { background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.4); border-radius: 32px; }
-        .floating-nav { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 400px; z-index: 100; border-radius: 40px; }
+        .glass { background: rgba(255, 255, 255, 0.78); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.4); border-radius: 28px; }
+        .floating-nav { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 400px; z-index: 100; border-radius: 40px; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .jp-card { min-width: 140px; background: rgba(255,255,255,0.9); border-radius: 20px; padding: 12px; border-left: 4px solid #0EA5E9; }
+        input, textarea, select { border: 1px solid #E2E8F0 !important; border-radius: 12px !important; padding: 8px 12px !important; width: 100%; }
+        .modal-bg { background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; }
     </style>
 </head>
 <body>
     <div class="fuji-bg"></div>
-    <div id="app" class="max-w-[430px] mx-auto min-h-screen pb-52">
+    <div id="app" class="max-w-[430px] mx-auto min-h-screen pb-40">
         
-        <header class="p-6 space-y-3 sticky top-0 z-50">
-            <div class="flex justify-between items-center">
-                <div class="glass px-4 py-2">
-                    <h1 class="text-base font-bold text-sky-900">Tokyo Trip 🗻</h1>
-                    <p class="text-[9px] text-sky-600 font-bold">1 JPY ≈ {{rate}} HKD</p>
+        <header class="p-6 flex justify-between items-start sticky top-0 z-50">
+            <div class="glass px-4 py-2 shadow-lg">
+                <h1 class="text-sm font-bold text-sky-900">Tokyo Trip 🗻</h1>
+                <p class="text-[9px] text-sky-600 font-bold">1 JPY ≈ {{rate}} HKD</p>
+            </div>
+            <div class="glass px-4 py-2 shadow-lg text-right">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-cloud-sun text-orange-400 text-xs"></i>
+                    <span class="text-xs font-bold text-gray-700">東京 16°C / 9°C</span>
                 </div>
-                <div class="glass px-4 py-2 flex items-center gap-2">
-                    <i class="fa-solid fa-cloud-sun text-orange-400"></i>
-                    <div class="text-right">
-                        <p class="text-[10px] font-bold text-gray-700">Tokyo 18°C</p>
-                    </div>
-                </div>
+                <p class="text-[8px] text-gray-500">降雨機率 10%</p>
             </div>
         </header>
 
         <div class="px-6 mb-4">
-            <div class="flex gap-3 overflow-x-auto no-scrollbar pb-2">
-                <div v-for="jp in jpCards" :key="jp.zh" class="jp-card shadow-md flex-shrink-0">
-                    <p class="text-[8px] text-gray-400 font-bold uppercase">{{jp.py}}</p>
-                    <p class="text-xs font-bold text-sky-900 my-1">{{jp.jp}}</p>
-                    <p class="text-[10px] text-gray-600 border-t pt-1 mt-1">{{jp.zh}}</p>
+            <div class="glass p-3 flex justify-between items-center bg-sky-900/10 border-sky-200">
+                <div class="text-center">
+                    <p class="text-[8px] font-bold text-sky-700">HKG</p>
+                    <p class="text-xs font-black">CX504</p>
+                </div>
+                <i class="fa-solid fa-plane text-sky-300 text-xs"></i>
+                <div class="text-center">
+                    <p class="text-[8px] font-bold text-sky-700">NRT</p>
+                    <p class="text-xs font-black">09:05 - 14:30</p>
+                </div>
+                <div class="h-6 w-[1px] bg-sky-200"></div>
+                <div class="text-[9px] text-gray-500">
+                    <p>回程: CX505</p>
+                    <p>18:00 - 22:15</p>
                 </div>
             </div>
         </div>
 
-        <div class="no-scrollbar flex gap-3 px-6 overflow-x-auto py-4">
-            <button v-for="i in 5" :key="i" @click="currentDay = i-1" :class="currentDay === i-1 ? 'bg-sky-500 text-white shadow-lg' : 'glass text-sky-700'" class="px-6 py-3 flex-shrink-0 font-bold rounded-3xl transition-all">Day {{i}}</button>
+        <div class="no-scrollbar flex gap-2 px-6 overflow-x-auto py-2">
+            <button v-for="i in 5" :key="i" @click="currentDay = i-1" :class="currentDay === i-1 ? 'bg-sky-600 text-white shadow-md' : 'glass text-sky-700'" class="px-5 py-2.5 flex-shrink-0 font-bold rounded-full text-xs transition-all">Day {{i}}</button>
         </div>
 
-        <main class="px-5 space-y-6">
-            <section v-if="activeTab === 'shop'" class="space-y-4">
-                <div class="flex justify-between items-center px-1">
-                    <h2 class="text-white font-bold drop-shadow-md text-lg">Shopping List 🛍️</h2>
-                    <button @click="openEditModal(null)" class="bg-white/90 text-pink-500 px-4 py-1.5 rounded-full text-xs font-bold shadow-lg">+ 新增</button>
-                </div>
-                <div v-for="(item, i) in shopItems" :key="i" class="glass p-4 flex gap-4">
-                    <div class="w-20 h-20 rounded-xl overflow-hidden bg-white flex-shrink-0">
-                        <img v-if="item.img" :src="item.img" class="w-full h-full object-cover">
-                        <div v-else class="h-full flex items-center justify-center text-gray-200"><i class="fa-solid fa-camera"></i></div>
-                    </div>
-                    <div class="flex-1">
-                        <div class="flex justify-between">
-                            <h4 class="font-bold text-gray-800 text-sm">{{item.name}}</h4>
-                            <div class="flex gap-3">
-                                <i @click="openEditModal(i)" class="fa-solid fa-pen text-sky-400 text-xs cursor-pointer"></i>
-                                <i @click="removeShopItem(i)" class="fa-solid fa-trash text-gray-200 text-xs cursor-pointer"></i>
-                            </div>
-                        </div>
-                        <p class="text-pink-600 font-bold text-xs mt-1">HKD ${{item.price}}</p>
-                        <p class="text-[9px] text-gray-500 mt-1 italic">{{item.desc}}</p>
-                    </div>
-                </div>
-            </section>
-
+        <main class="px-5 mt-4 space-y-6">
+            
             <section v-if="activeTab === 'plan'" class="space-y-4">
                 <div class="flex justify-between items-center px-1">
-                    <h2 class="text-white font-bold drop-shadow-md text-lg">Day {{currentDay+1}} 行程</h2>
-                    <button @click="addDayPlan" class="bg-white/90 text-sky-600 px-4 py-1.5 rounded-full text-xs font-bold shadow-lg">+ 加行程</button>
+                    <h2 class="text-white font-bold drop-shadow-md text-sm">Day {{currentDay+1}} 行程</h2>
+                    <button @click="addDayPlan" class="bg-white/90 text-sky-600 px-3 py-1 rounded-full text-[10px] font-bold">+ 行程</button>
                 </div>
-                <div v-for="(p, i) in dailyPlans[currentDay]" :key="i" class="glass p-5 mb-3 shadow-md">
-                    <div class="flex justify-between items-center">
+                <div v-for="(p, i) in dailyPlans[currentDay]" :key="i" class="glass p-4 shadow-md space-y-3">
+                    <div class="flex justify-between items-start">
                         <div class="flex gap-3">
-                            <span class="text-sky-800 font-bold text-sm">{{p.time}}</span>
-                            <span class="font-bold text-gray-700 text-sm">{{p.title}}</span>
+                            <span class="bg-sky-100 text-sky-600 px-2 py-1 rounded-lg text-[9px] font-bold h-fit">{{p.time}}</span>
+                            <div>
+                                <h3 class="font-bold text-gray-800 text-sm">{{p.title}}</h3>
+                                <p class="text-[10px] text-gray-400 mt-1"><i class="fa-solid fa-location-dot"></i> {{p.location}}</p>
+                            </div>
                         </div>
-                        <button @click="movePlan(currentDay, i)" class="text-[9px] bg-sky-100 text-sky-600 px-3 py-1 rounded-full font-bold">搬位</button>
+                        <div class="flex gap-3">
+                            <button @click="movePlan(currentDay, i)" class="text-[9px] text-sky-400 font-bold">搬位</button>
+                            <i @click="removeDayPlan(currentDay, i)" class="fa-solid fa-xmark text-gray-300"></i>
+                        </div>
+                    </div>
+                    <button @click="openMap(p.location)" class="w-full bg-sky-500 text-white py-2 rounded-xl text-[10px] font-bold shadow-sm">
+                        <i class="fa-solid fa-route"></i> Google Maps 導航
+                    </button>
+                </div>
+            </section>
+
+            <section v-if="activeTab === 'money'" class="space-y-4">
+                <div class="glass p-5 text-center shadow-lg">
+                    <p class="text-xs text-gray-500 font-bold">總支出 (HKD)</p>
+                    <p class="text-2xl font-black text-sky-900">${{ totalExpense }}</p>
+                </div>
+                <div class="glass p-4 space-y-3">
+                    <div class="flex gap-2">
+                        <input v-model="newExp.item" placeholder="項目" class="flex-1 text-sm">
+                        <input v-model.number="newExp.amount" type="number" placeholder="¥日圓" class="w-24 text-sm">
+                        <button @click="addExpense" class="bg-sky-600 text-white px-4 rounded-xl font-bold text-sm">+</button>
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <div v-for="(e, i) in expenses" :key="i" class="glass px-4 py-3 flex justify-between items-center shadow-sm">
+                        <span class="text-sm font-bold text-gray-700">{{e.item}}</span>
+                        <div class="text-right">
+                            <p class="text-xs font-bold text-sky-700">¥{{e.amount}}</p>
+                            <p class="text-[9px] text-gray-400">≈ HKD ${{ (e.amount * rate).toFixed(1) }}</p>
+                        </div>
+                        <i @click="expenses.splice(i,1)" class="fa-solid fa-trash text-gray-200 ml-4 text-xs"></i>
                     </div>
                 </div>
             </section>
 
-            <section class="pt-10 pb-10">
-                <div class="glass p-6 space-y-4 border-dashed border-2 border-sky-200">
-                    <h3 class="text-xs font-bold text-sky-800 flex items-center gap-2">
-                        <i class="fa-solid fa-shield-halved"></i> 資料保險箱 (備份用)
-                    </h3>
-                    <div class="flex gap-3">
-                        <button @click="exportData" class="flex-1 bg-sky-600 text-white py-3 rounded-2xl text-[11px] font-bold shadow-lg">
-                            <i class="fa-solid fa-download mr-1"></i> 備份資料
-                        </button>
-                        <label class="flex-1 bg-white text-sky-600 border border-sky-600 py-3 rounded-2xl text-[11px] font-bold text-center cursor-pointer shadow-sm">
-                            <i class="fa-solid fa-upload mr-1"></i> 還原備份
-                            <input type="file" @change="importData" class="hidden">
-                        </label>
+            <section v-if="activeTab === 'shop'" class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-white font-bold drop-shadow-md text-sm">Shopping List 🛍️</h2>
+                    <button @click="openEditModal(null)" class="bg-white/90 text-pink-500 px-3 py-1 rounded-full text-[10px] font-bold">+ 新增</button>
+                </div>
+                <div v-for="(item, i) in shopItems" :key="i" class="glass p-3 flex gap-3 shadow-md">
+                    <div class="w-20 h-20 rounded-xl overflow-hidden bg-gray-50 flex-shrink-0">
+                        <img v-if="item.img" :src="item.img" class="w-full h-full object-cover">
                     </div>
-                    <p class="text-[9px] text-gray-400 text-center italic">※ 建議每星期備份一次，將備份檔儲存在 Email 或雲端。</p>
+                    <div class="flex-1 flex flex-col justify-between py-1">
+                        <div class="flex justify-between">
+                            <h4 class="font-bold text-gray-800 text-xs">{{item.name}}</h4>
+                            <i @click="openEditModal(i)" class="fa-solid fa-pen text-sky-300 text-[10px]"></i>
+                        </div>
+                        <p class="text-pink-600 font-bold text-[10px] mt-1">HKD ${{item.price}} (約 ¥{{(item.price/rate).toFixed(0)}})</p>
+                        <p class="text-[9px] text-gray-400 line-clamp-1 italic">{{item.desc}}</p>
+                    </div>
                 </div>
             </section>
         </main>
 
-        <div v-if="showModal" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm">
-            <div class="bg-white w-full rounded-[32px] p-6 space-y-4 animate-pop">
-                <h3 class="font-bold text-gray-800">編輯清單項目</h3>
-                <input v-model="editItem.name" placeholder="項目名稱" class="w-full border p-3 rounded-xl bg-gray-50">
-                <input v-model.number="editItem.price" type="number" placeholder="HKD 價錢" class="w-full border p-3 rounded-xl bg-gray-50">
-                <textarea v-model="editItem.desc" placeholder="備註/收件人" class="w-full border p-3 rounded-xl bg-gray-50"></textarea>
-                <div class="text-xs text-gray-400 ml-1">上傳相片：</div>
-                <input type="file" @change="handleImageUpload" class="text-xs w-full">
-                <div class="flex gap-3 pt-2">
+        <div class="px-6 py-10 opacity-50 flex gap-4 justify-center">
+            <button @click="exportData" class="text-[10px] text-white underline font-bold">匯出備份 (Backup)</button>
+            <label class="text-[10px] text-white underline font-bold cursor-pointer">
+                還原資料 (Restore)
+                <input type="file" @change="importData" class="hidden">
+            </label>
+        </div>
+
+        <div v-if="showModal" class="modal-bg">
+            <div class="bg-white w-full max-w-xs rounded-[28px] p-6 space-y-4">
+                <h3 class="font-bold text-gray-800">編輯物品資料</h3>
+                <input v-model="editItem.name" placeholder="物品名稱">
+                <input v-model.number="editItem.price" type="number" placeholder="HKD 價錢">
+                <textarea v-model="editItem.desc" placeholder="備註/幫邊個買？"></textarea>
+                <input v-model="editItem.url" placeholder="網址 URL">
+                <input type="file" @change="handleImageUpload" class="text-[10px]">
+                <div class="flex gap-2">
                     <button @click="showModal = false" class="flex-1 py-3 bg-gray-100 rounded-2xl font-bold text-gray-500">取消</button>
-                    <button @click="saveShopItem" class="flex-1 py-3 bg-sky-500 text-white rounded-2xl font-bold shadow-lg">儲存</button>
+                    <button @click="saveShopItem" class="flex-1 py-3 bg-sky-500 text-white rounded-2xl font-bold">儲存</button>
                 </div>
             </div>
         </div>
 
         <nav class="floating-nav glass flex items-center justify-around h-16 shadow-2xl">
-            <button @click="activeTab = 'plan'" :class="activeTab === 'plan' ? 'text-sky-600' : 'text-gray-400'" class="flex flex-col items-center">
-                <i class="fa-solid fa-map-location-dot text-lg"></i><span class="text-[9px] mt-1 font-bold">行程</span>
+            <button @click="activeTab = 'plan'" :class="activeTab === 'plan' ? 'text-sky-600' : 'text-gray-300'" class="flex flex-col items-center">
+                <i class="fa-solid fa-calendar-day text-lg"></i><span class="text-[9px] mt-1 font-bold">行程</span>
+            </button>
+            <button @click="activeTab = 'money'" :class="activeTab === 'money' ? 'text-sky-600' : 'text-gray-400'" class="flex flex-col items-center">
+                <i class="fa-solid fa-wallet text-lg"></i><span class="text-[9px] mt-1 font-bold">記帳</span>
             </button>
             <button @click="activeTab = 'shop'" :class="activeTab === 'shop' ? 'text-sky-600' : 'text-gray-400'" class="flex flex-col items-center">
-                <i class="fa-solid fa-shopping-bag text-lg"></i><span class="text-[9px] mt-1 font-bold">購物</span>
+                <i class="fa-solid fa-bag-shopping text-lg"></i><span class="text-[9px] mt-1 font-bold">購物</span>
             </button>
         </nav>
     </div>
 
     <script>
-        const { createApp, ref, onMounted, watch } = Vue
+        const { createApp, ref, computed, onMounted, watch } = Vue
         createApp({
             setup() {
-                const activeTab = ref('plan'), currentDay = ref(0), rate = ref(0.052), showModal = ref(false);
-                const dailyPlans = ref({0:[], 1:[], 2:[], 3:[], 4:[]}), shopItems = ref([]), editingIndex = ref(null);
+                const activeTab = ref('plan'), currentDay = ref(0), rate = ref(0.052);
+                const dailyPlans = ref({0:[], 1:[], 2:[], 3:[], 4:[]});
+                const shopItems = ref([]), expenses = ref([]), newExp = ref({item:'', amount:null});
+                const showModal = ref(false), editingIndex = ref(null);
                 const editItem = ref({name:'', price:null, desc:'', url:'', img:''});
 
-                const jpCards = [
-                    { zh: '唔該/謝謝', jp: 'ありがとう', py: 'Arigato' },
-                    { zh: '廁所喺邊度？', jp: 'トイレはどこですか？', py: 'Toire wa doko?' },
-                    { zh: '想要熱水 (沖奶)', jp: 'お湯をください', py: 'Oyu wo kudasai' },
-                    { zh: '可以借哺乳室嗎？', jp: '授乳室はありますか？', py: 'Junyushitsu wa?' },
-                    { zh: '對唔住/借過', jp: 'すみません', py: 'Sumimasen' }
-                ];
-
-                const STORAGE_KEY = 'fujiTrip_final_v1';
-
                 onMounted(() => {
-                    const saved = localStorage.getItem(STORAGE_KEY);
+                    const saved = localStorage.getItem('fujiTrip_Ultimate');
                     if(saved) {
                         const data = JSON.parse(saved);
                         dailyPlans.value = data.dailyPlans || {0:[], 1:[], 2:[], 3:[], 4:[]};
                         shopItems.value = data.shopItems || [];
+                        expenses.value = data.expenses || [];
                         rate.value = data.rate || 0.052;
                     }
                 });
 
-                watch([dailyPlans, shopItems, rate], () => {
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify({ dailyPlans: dailyPlans.value, shopItems: shopItems.value, rate: rate.value }));
+                watch([dailyPlans, shopItems, expenses, rate], () => {
+                    localStorage.setItem('fujiTrip_Ultimate', JSON.stringify({ dailyPlans: dailyPlans.value, shopItems: shopItems.value, expenses: expenses.value, rate: rate.value }));
                 }, { deep: true });
 
-                // 備份功能
-                const exportData = () => {
-                    const data = localStorage.getItem(STORAGE_KEY);
-                    if(!data) return alert("仲未有資料可以備份呀！");
-                    const blob = new Blob([data], { type: 'text/plain' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `Japan_Trip_Backup_${new Date().getMonth()+1}${new Date().getDate()}.txt`;
-                    a.click();
-                };
+                const totalExpense = computed(() => expenses.value.reduce((sum, e) => sum + (e.amount * rate.value), 0).toFixed(0));
 
-                const importData = (e) => {
-                    const file = e.target.files[0];
-                    if(!file) return;
-                    const reader = new FileReader();
-                    reader.onload = (ev) => {
-                        try {
-                            const content = ev.target.result;
-                            JSON.parse(content);
-                            localStorage.setItem(STORAGE_KEY, content);
-                            alert("還原成功！網頁即將重新整理...");
-                            location.reload();
-                        } catch(err) { alert("備份檔格式不正確！"); }
-                    };
-                    reader.readAsText(file);
-                };
+                const addExpense = () => { if(newExp.value.item && newExp.value.amount) { expenses.value.unshift({...newExp.value}); newExp.value = {item:'', amount:null}; } };
+                const openEditModal = (idx) => { editingIndex.value = idx; editItem.value = idx !== null ? {...shopItems.value[idx]} : {name:'', price:null, desc:'', url:'', img:''}; showModal.value = true; };
+                const handleImageUpload = (e) => { const f = e.target.files[0]; if(f){ const r = new FileReader(); r.onload=(ev)=>editItem.value.img=ev.target.result; r.readAsDataURL(f); } };
+                const saveShopItem = () => { if(editingIndex.value !== null) shopItems.value[editingIndex.value] = {...editItem.value}; else shopItems.value.push({...editItem.value}); showModal.value = false; };
+                const addDayPlan = () => { const t = prompt("景點？"); if(t) dailyPlans.value[currentDay.value].push({ time: prompt("時間？")||'12:00', title: t, location: t }); dailyPlans.value[currentDay.value].sort((a,b)=>a.time.localeCompare(b.time)); };
+                const movePlan = (d, i) => { const target = prompt("搬去第幾日？(1-5)"); const dIdx = parseInt(target)-1; if(dIdx>=0 && dIdx<5) dailyPlans.value[dIdx].push(dailyPlans.value[d].splice(i, 1)[0]); };
+                const openMap = (loc) => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(loc)}`, '_blank');
+                const exportData = () => { const data = localStorage.getItem('fujiTrip_Ultimate'); const blob = new Blob([data], {type:'text/plain'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `Japan_Trip_Backup.txt`; a.click(); };
+                const importData = (e) => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload=(ev)=>{ localStorage.setItem('fujiTrip_Ultimate', ev.target.result); location.reload(); }; r.readAsText(f); };
 
-                // 其他功能 (新增/編輯/搬位)
-                const openEditModal = (idx) => {
-                    editingIndex.value = idx;
-                    editItem.value = idx !== null ? { ...shopItems.value[idx] } : { name:'', price:null, desc:'', url:'', img:'' };
-                    showModal.value = true;
-                };
-                const handleImageUpload = (e) => {
-                    const f = e.target.files[0];
-                    if(f){ const r = new FileReader(); r.onload=(ev)=>editItem.value.img=ev.target.result; r.readAsDataURL(f); }
-                };
-                const saveShopItem = () => {
-                    if(editingIndex.value !== null) shopItems.value[editingIndex.value] = { ...editItem.value };
-                    else shopItems.value.push({ ...editItem.value });
-                    showModal.value = false;
-                };
-                const removeShopItem = (i) => { if(confirm('刪除？')) shopItems.value.splice(i,1) };
-                const addDayPlan = () => { const t = prompt("景點？"); if(t) dailyPlans.value[currentDay.value].push({ time: prompt("時間？")||'12:00', title: t }); };
-                const movePlan = (d, i) => {
-                    const target = prompt("搬去第幾日？(1-5)");
-                    const dIdx = parseInt(target)-1;
-                    if(dIdx>=0 && dIdx<5) dailyPlans.value[dIdx].push(dailyPlans.value[d].splice(i, 1)[0]);
-                };
-
-                return { activeTab, currentDay, rate, dailyPlans, shopItems, jpCards, showModal, editItem, openEditModal, handleImageUpload, saveShopItem, removeShopItem, addDayPlan, movePlan, exportData, importData }
+                return { activeTab, currentDay, rate, dailyPlans, shopItems, expenses, newExp, totalExpense, addExpense, showModal, editItem, openEditModal, handleImageUpload, saveShopItem, addDayPlan, movePlan, openMap, exportData, importData }
             }
         }).mount('#app')
     </script>
