@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TabiPlan Pro</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
+        body { font-family: 'Noto Sans TC', sans-serif; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
+        
+        /* 全螢幕背景 */
+        .app-bg {
+            background-image: url('https://images.unsplash.com/photo-1528164344705-47542687990d?q=80&w=2070&auto=format&fit=crop'); 
+            background-size: cover; background-position: center;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+        }
+
+        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); }
+        .blue-gradient { background: linear-gradient(135deg, #6a82fb 0%, #4b6cb7 100%); color: white; }
+        
+        /* 隱藏滾動條 */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .date-card { width: 65px; height: 75px; flex-shrink: 0; border-radius: 16px; transition: 0.3s; background: rgba(255,255,255,0.8); }
+        .date-card.active { background: #6a82fb; color: white; box-shadow: 0 4px 15px rgba(106, 130, 251, 0.4); }
+        .date-card.active-orange { background: #fdf0e1; border: 2px solid #eab308; color: #854d0e; }
+
+        .floating-nav {
+            position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%);
+            width: 90%; max-width: 400px; height: 75px;
+            background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(15px);
+            border-radius: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); z-index: 100;
+        }
+    </style>
+</head>
+<body class="bg-slate-50">
+    <div class="app-bg"></div>
+
+    <div id="app" class="max-w-[430px] mx-auto min-h-screen relative pb-32">
+        
+        <header class="p-6 flex justify-between items-center text-slate-800">
+            <div class="w-10 h-10 rounded-full bg-black/30 flex items-center justify-center text-white"><i class="fa-solid fa-xmark"></i></div>
+            <div class="text-center">
+                <h1 class="text-xl font-bold tracking-tight">Menu Tokyo ▲</h1>
+                <p class="text-[10px] opacity-70">1 JPY ≈ 0.052 HKD</p>
+            </div>
+            <div class="w-10 h-10 rounded-full bg-black/30 flex items-center justify-center text-white"><i class="fa-solid fa-ellipsis"></i></div>
+        </header>
+
+        <div class="no-scrollbar flex gap-3 px-6 overflow-x-auto mb-6">
+            <div @click="activeDate = -1" :class="activeDate === -1 ? 'active-orange' : ''" class="date-card flex flex-col items-center justify-center cursor-pointer shadow-sm">
+                <i class="fa-solid fa-clipboard-list text-lg mb-1" :class="activeDate === -1 ? 'text-orange-500' : 'text-gray-400'"></i>
+                <span class="text-[11px] font-bold">行前</span>
+            </div>
+            <div v-for="(d, i) in 5" :key="i" @click="activeDate = i" :class="activeDate === i ? 'active' : ''" class="date-card flex flex-col items-center justify-center cursor-pointer shadow-sm">
+                <span class="text-[9px] opacity-60">Day {{i+1}}</span>
+                <span class="text-lg font-bold">0{{8+i}}</span>
+            </div>
+        </div>
+
+        <main class="px-5 space-y-5">
+            
+            <div v-if="activeTab === 'plan'" class="space-y-4">
+                <div class="glass rounded-[24px] p-5 flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <i class="fa-solid fa-sun text-4xl text-sky-400"></i>
+                        <div>
+                            <span class="text-3xl font-bold text-slate-700">5° C</span>
+                            <p class="text-xs text-slate-500">體感 2°C · 晴時多雲</p>
+                        </div>
+                    </div>
+                    <span class="bg-sky-100 text-sky-600 px-3 py-1 rounded-full text-xs font-bold"><i class="fa-solid fa-location-dot"></i> 東京</span>
+                </div>
+
+                <div class="flex justify-between items-center">
+                    <h2 class="text-lg font-bold text-slate-800">行程安排</h2>
+                    <button class="bg-slate-500/20 text-slate-700 px-4 py-1.5 rounded-full text-sm font-bold">+ 新增</button>
+                </div>
+
+                <div class="blue-gradient rounded-[28px] p-6 shadow-lg relative overflow-hidden">
+                    <div class="flex justify-between items-start mb-6">
+                        <span class="bg-white/20 px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase text-white">Flight 09:05</span>
+                        <i class="fa-solid fa-pen text-sm opacity-50"></i>
+                    </div>
+                    <div class="flex justify-between items-center relative z-10">
+                        <div class="text-center">
+                            <p class="text-[10px] opacity-70 mb-1">FROM</p>
+                            <h3 class="text-2xl font-bold">HKG</h3>
+                        </div>
+                        <div class="flex-1 px-4 flex flex-col items-center">
+                            <i class="fa-solid fa-plane text-2xl rotate-45 mb-2"></i>
+                            <div class="w-full border-t border-dashed border-white/30"></div>
+                            <p class="text-[9px] mt-1 opacity-60">航班前往東京</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-[10px] opacity-70 mb-1">TO</p>
+                            <h3 class="text-2xl font-bold">TYO</h3>
+                        </div>
+                    </div>
+                    <div class="mt-6 flex justify-between items-end">
+                        <p class="text-xs font-medium opacity-80">HB320 航班前往東京</p>
+                        <span class="bg-white text-blue-600 px-3 py-1 rounded-lg text-xs font-bold shadow-sm">已確認</span>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="activeTab === 'money'" class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-slate-800 bg-white/60 px-3 py-1 rounded-lg">旅費管理</h2>
+                </div>
+                
+                <div class="blue-gradient rounded-[32px] p-8 text-center shadow-xl">
+                    <p class="text-xs opacity-80 mb-2">總支出 (HKD)</p>
+                    <h2 class="text-5xl font-bold mb-1">$ {{totalExp}}</h2>
+                    <p class="text-xs opacity-60">日幣總計 ¥ {{totalExp * 19}}</p>
+                    <div class="grid grid-cols-2 gap-4 mt-8 pt-8 border-t border-white/10">
+                        <div class="border-r border-white/10">
+                            <p class="text-[10px] mb-1"><i class="fa-solid fa-money-bill-1"></i> 現金</p>
+                            <p class="text-lg font-bold">$ 0</p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] mb-1"><i class="fa-solid fa-credit-card"></i> 信用卡</p>
+                            <p class="text-lg font-bold">$ 0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center mt-6">
+                    <h3 class="font-bold text-slate-800">支出明細</h3>
+                    <button class="bg-sky-100 text-sky-600 px-4 py-1.5 rounded-full text-sm font-bold">+ 記一筆</button>
+                </div>
+                <div class="bg-slate-200/50 p-1 rounded-xl flex">
+                    <button class="flex-1 bg-white py-2 rounded-lg text-xs font-bold shadow-sm">全部</button>
+                    <button class="flex-1 py-2 text-xs font-bold text-slate-500">現金</button>
+                    <button class="flex-1 py-2 text-xs font-bold text-slate-500">信用卡</button>
+                </div>
+                <p class="text-center py-10 text-slate-400 text-sm">沒有相關的支出紀錄</p>
+            </div>
+
+            <div v-if="activeTab === 'shop'" class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-slate-800 bg-white/60 px-3 py-1 rounded-lg">購物清單</h2>
+                    <button class="w-10 h-10 rounded-full bg-slate-800 text-white flex items-center justify-center shadow-lg"><i class="fa-solid fa-plus"></i></button>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div v-for="i in 1" :key="i" class="card glass rounded-[24px] p-3 shadow-sm relative">
+                        <img src="https://images.unsplash.com/photo-1590439471364-192aa70c0b53?q=80&w=600&auto=format&fit=crop" class="w-full h-32 object-cover rounded-[18px] mb-3">
+                        <h4 class="text-xs font-bold text-slate-800">CEZANNE 101號唇膏</h4>
+                        <p class="text-[10px] text-slate-400 mt-1">¥3000</p>
+                        <div class="flex justify-between mt-3 items-center">
+                            <i class="fa-solid fa-trash-can text-slate-200 text-xs"></i>
+                            <div class="w-6 h-6 rounded-full border border-slate-200 flex items-center justify-center text-slate-200"><i class="fa-solid fa-check text-[10px]"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <nav class="floating-nav flex items-center justify-around px-2">
+            <button @click="activeTab = 'plan'" :class="activeTab === 'plan' ? 'text-blue-500' : 'text-slate-400'" class="flex flex-col items-center">
+                <i class="fa-solid fa-route text-xl"></i>
+                <span class="text-[10px] mt-1 font-bold">行程</span>
+            </button>
+            <button @click="activeTab = 'map'" :class="activeTab === 'map' ? 'text-blue-500' : 'text-slate-400'" class="flex flex-col items-center">
+                <i class="fa-solid fa-map text-xl"></i>
+                <span class="text-[10px] mt-1 font-bold">地圖</span>
+            </button>
+            <button @click="activeTab = 'money'" :class="activeTab === 'money' ? 'text-blue-500' : 'text-slate-400'" class="flex flex-col items-center">
+                <i class="fa-solid fa-wallet text-xl"></i>
+                <span class="text-[10px] mt-1 font-bold">記帳</span>
+            </button>
+            <button @click="activeTab = 'shop'" :class="activeTab === 'shop' ? 'text-blue-500' : 'text-slate-400'" class="flex flex-col items-center">
+                <i class="fa-solid fa-bag-shopping text-xl"></i>
+                <span class="text-[10px] mt-1 font-bold">購物</span>
+            </button>
+            <button class="text-slate-400 flex flex-col items-center">
+                <i class="fa-solid fa-circle-info text-xl"></i>
+                <span class="text-[10px] mt-1 font-bold">資訊</span>
+            </button>
+        </nav>
+    </div>
+
+    <script>
+        const { createApp, ref } = Vue
+        createApp({
+            setup() {
+                const activeTab = ref('plan')
+                const activeDate = ref(0)
+                const totalExp = ref(0)
+
+                return { activeTab, activeDate, totalExp }
+            }
+        }).mount('#app')
+    </script>
+</body>
+</html>
