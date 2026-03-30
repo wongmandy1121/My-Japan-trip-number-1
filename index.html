@@ -3,140 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TabiPlan Sky Pro</title>
+    <title>Sky Trip Pro</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
-        body { font-family: 'Noto Sans TC', sans-serif; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
-        .app-bg { background: linear-gradient(180deg, #BAE6FD 0%, #F0F9FF 100%); position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
-        .glass { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.5); }
-        .sky-gradient { background: linear-gradient(135deg, #7DD3FC 0%, #38BDF8 100%); color: white; }
+        body { font-family: 'Noto Sans TC', sans-serif; background: #F0F9FF; }
+        .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); }
+        .sky-gradient { background: linear-gradient(135deg, #7DD3FC 0%, #0EA5E9 100%); color: white; }
+        .floating-nav { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; z-index: 100; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .date-card { width: 65px; height: 75px; flex-shrink: 0; border-radius: 20px; transition: 0.3s; background: white; border: 1px solid #E0F2FE; }
-        .date-card.active { background: #0EA5E9; color: white; box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3); border-color: #0EA5E9; }
-        .floating-nav { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 400px; height: 72px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); border-radius: 35px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); z-index: 100; }
     </style>
 </head>
 <body>
-    <div class="app-bg"></div>
-    <div id="app" class="max-w-[430px] mx-auto min-h-screen relative pb-32">
+    <div id="app" class="max-w-[430px] mx-auto min-h-screen pb-32">
         
-        <header class="p-6 flex justify-between items-center">
-            <div class="w-10 h-10 rounded-full bg-white/50 flex items-center justify-center text-sky-600"><i class="fa-solid fa-plane-departure"></i></div>
-            <div class="text-center">
-                <h1 class="text-xl font-bold text-sky-900">Sky Trip Tokyo</h1>
-                <div class="flex items-center justify-center gap-1 mt-1">
-                    <span class="text-[10px] text-sky-600">匯率設定：1 JPY = </span>
-                    <input v-model.number="rate" type="number" step="0.001" class="w-14 text-[10px] bg-sky-100 rounded px-1 border-none font-bold text-sky-800">
-                    <span class="text-[10px] text-sky-600">HKD</span>
-                </div>
+        <header class="p-6 flex justify-between items-center bg-white/50">
+            <div>
+                <h1 class="text-xl font-bold text-sky-900">Tokyo Sky Trip ✈️</h1>
+                <p class="text-[10px] text-sky-500">1 JPY ≈ {{rate}} HKD</p>
             </div>
-            <div class="w-10 h-10 rounded-full bg-white/50 flex items-center justify-center text-sky-600"><i class="fa-solid fa-gear"></i></div>
+            <div class="flex gap-2">
+                <input v-model.number="rate" type="number" step="0.001" class="w-16 text-xs bg-white rounded-lg px-2 py-1 border-none shadow-sm">
+            </div>
         </header>
 
-        <div class="no-scrollbar flex gap-3 px-6 overflow-x-auto mb-6">
-            <div v-for="(d, i) in 5" :key="i" @click="activeDate = i" :class="activeDate === i ? 'active' : ''" class="date-card flex flex-col items-center justify-center cursor-pointer shadow-sm">
-                <span class="text-[10px] opacity-60">Day {{i+1}}</span>
-                <span class="text-lg font-bold">0{{8+i}}</span>
-            </div>
+        <div class="no-scrollbar flex gap-3 px-6 overflow-x-auto py-4">
+            <button @click="currentDay = -1" :class="currentDay === -1 ? 'bg-orange-400 text-white shadow-lg' : 'bg-white text-orange-400'" class="px-5 py-3 rounded-2xl flex-shrink-0 font-bold transition-all border border-orange-100">
+                📝 行前
+            </button>
+            <button v-for="(d, i) in totalDays" :key="i" @click="currentDay = i" :class="currentDay === i ? 'bg-sky-500 text-white shadow-lg' : 'bg-white text-sky-500'" class="px-5 py-3 rounded-2xl flex-shrink-0 font-bold transition-all border border-sky-100 text-center">
+                <span class="block text-[10px] opacity-70">Day {{i+1}}</span>
+                <span>0{{8+i}}</span>
+            </button>
         </div>
 
-        <main class="px-5 space-y-5">
-            <section v-if="activeTab === 'plan'" class="space-y-4">
-                <div class="flex justify-between items-center px-1">
-                    <h2 class="text-lg font-bold text-sky-900">行程安排</h2>
-                    <button @click="addSchedule" class="bg-sky-500 text-white px-4 py-1.5 rounded-full text-sm font-bold shadow-md">+ 新增</button>
+        <main class="px-5 space-y-6">
+            
+            <section v-if="currentDay === -1" class="animate-fadeIn">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-bold text-gray-800">行前準備清單</h2>
+                    <button @click="addPreItem" class="text-xs bg-orange-100 text-orange-600 px-3 py-1 rounded-full font-bold">+ 新增</button>
                 </div>
-                <div v-for="(item, index) in schedule" :key="index" class="glass rounded-[24px] p-5 flex gap-4 items-center">
-                    <div class="text-center w-12 flex-shrink-0">
-                        <p class="text-lg font-bold text-sky-700">{{item.time}}</p>
+                <div class="space-y-3">
+                    <div v-for="(item, i) in preTripList" :key="i" class="glass rounded-2xl p-4 flex items-center justify-between shadow-sm">
+                        <div class="flex items-center gap-3">
+                            <input type="checkbox" v-model="item.done" class="w-5 h-5 rounded-lg border-orange-200">
+                            <span :class="item.done ? 'line-through text-gray-400' : 'text-gray-700 font-medium'">{{item.title}}</span>
+                        </div>
+                        <i @click="removePreItem(i)" class="fa-solid fa-trash text-gray-200 text-xs"></i>
+                    </div>
+                </div>
+            </section>
+
+            <section v-if="activeTab === 'plan' && currentDay >= 0" class="space-y-4 animate-fadeIn">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-lg font-bold text-sky-900">Day {{currentDay+1}} 行程安排</h2>
+                    <button @click="addDayPlan" class="bg-sky-500 text-white px-4 py-1.5 rounded-full text-xs font-bold shadow-md">+ 新增</button>
+                </div>
+                <div v-if="!dailyPlans[currentDay]?.length" class="text-center py-10 text-gray-400 text-sm italic">今日暫時未有行程</div>
+                <div v-for="(p, i) in dailyPlans[currentDay]" :key="i" class="glass rounded-[24px] p-5 flex gap-4 shadow-sm border-l-4 border-l-sky-400">
+                    <div class="w-12 text-center border-r border-sky-100 flex-shrink-0">
+                        <p class="font-bold text-sky-700">{{p.time}}</p>
                     </div>
                     <div class="flex-1">
-                        <h3 class="font-semibold text-gray-800">{{item.title}}</h3>
-                        <p class="text-[10px] text-sky-400 mb-2">{{item.location}}</p>
-                        <button @click="openMap(item.location)" class="bg-sky-100 text-sky-600 px-3 py-1 rounded-full text-[10px] font-bold">
-                            <i class="fa-solid fa-location-arrow mr-1"></i> Google Maps 導航
-                        </button>
+                        <h3 class="font-bold text-gray-800">{{p.title}}</h3>
+                        <p class="text-[10px] text-sky-400 mb-2"><i class="fa-solid fa-location-dot"></i> {{p.location}}</p>
+                        <button @click="openMap(p.location)" class="text-[9px] bg-sky-50 text-sky-600 px-2 py-0.5 rounded border border-sky-100">開啟地圖</button>
                     </div>
-                    <i @click="removeSchedule(index)" class="fa-solid fa-circle-minus text-red-200"></i>
+                    <i @click="removeDayPlan(i)" class="fa-solid fa-xmark text-gray-300"></i>
                 </div>
             </section>
 
             <section v-if="activeTab === 'money'" class="space-y-4">
-                <div class="sky-gradient rounded-[32px] p-6 text-center shadow-xl">
-                    <p class="text-xs opacity-90 mb-1">總支出 (HKD)</p>
-                    <h2 class="text-4xl font-bold mb-4">$ {{totalExpensesHKD}}</h2>
-                    <div class="flex justify-around bg-white/10 rounded-2xl py-3">
-                        <div>
-                            <p class="text-[9px] opacity-70">日幣 ¥</p>
-                            <p class="text-sm font-bold">{{totalExpensesJPY}}</p>
-                        </div>
-                        <div class="border-l border-white/20"></div>
-                        <div>
-                            <p class="text-[9px] opacity-70">現金 (HKD)</p>
-                            <p class="text-sm font-bold">$ {{cashHKD}}</p>
-                        </div>
-                    </div>
+                <div class="sky-gradient rounded-[32px] p-8 text-center shadow-xl relative overflow-hidden">
+                    <div class="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full"></div>
+                    <p class="text-xs opacity-90 mb-2">總預算進度 (HKD)</p>
+                    <h2 class="text-4xl font-bold">$ {{totalHKD}}</h2>
                 </div>
-
                 <div class="glass rounded-[24px] p-5 space-y-3">
-                    <input v-model="newExp.item" placeholder="支出項目 (如: 拉麵)" class="w-full p-3 rounded-xl bg-sky-50 border-none text-sm">
+                    <input v-model="newExp.item" placeholder="支出項目" class="w-full p-3 rounded-xl bg-white border-none text-sm shadow-sm">
                     <div class="flex gap-2">
-                        <input v-model.number="newExp.amount" type="number" placeholder="日幣金額 (¥)" class="flex-1 p-3 rounded-xl bg-sky-50 border-none text-sm">
-                        <select v-model="newExp.method" class="p-3 rounded-xl bg-sky-50 border-none text-sm text-sky-700 font-bold">
-                            <option value="cash">現金</option>
-                            <option value="card">信用卡</option>
-                        </select>
+                        <input v-model.number="newExp.amount" type="number" placeholder="日幣 ¥" class="flex-1 p-3 rounded-xl bg-white border-none text-sm shadow-sm">
+                        <button @click="addExp" class="bg-sky-600 text-white px-6 rounded-xl font-bold shadow-lg">記帳</button>
                     </div>
-                    <div v-if="newExp.amount" class="text-center text-[10px] text-sky-500 font-bold">
-                        預計：HKD ${{ (newExp.amount * rate).toFixed(2) }}
-                    </div>
-                    <button @click="addExpense" class="w-full sky-gradient py-3 rounded-xl font-bold shadow-lg">新增支出</button>
                 </div>
-
-                <div class="space-y-2">
-                    <div v-for="(exp, i) in expenses" :key="i" class="glass rounded-[20px] p-4 flex justify-between items-center">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-sky-100 flex items-center justify-center text-sky-600 text-[10px]"><i :class="exp.method === 'cash' ? 'fa-solid fa-money-bill' : 'fa-solid fa-credit-card'"></i></div>
-                            <div>
-                                <p class="font-medium text-gray-700 text-sm">{{exp.item}}</p>
-                                <p class="text-[9px] text-gray-400">¥ {{exp.amount}}</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <span class="font-bold text-sky-600">$ {{ (exp.amount * rate).toFixed(1) }}</span>
-                            <i @click="removeExpense(i)" class="fa-solid fa-trash-can text-gray-300 text-xs cursor-pointer"></i>
-                        </div>
-                    </div>
+                <div v-for="(exp, i) in expenses" :key="i" class="bg-white/60 p-4 rounded-2xl flex justify-between items-center">
+                    <span class="text-sm font-medium">{{exp.item}}</span>
+                    <span class="text-sky-600 font-bold">$ {{(exp.amount * rate).toFixed(0)}}</span>
                 </div>
             </section>
 
             <section v-if="activeTab === 'shop'" class="space-y-4">
-                <div class="flex justify-between items-center px-1">
-                    <h2 class="text-xl font-bold text-sky-900">想買清單</h2>
-                    <button @click="addShopItem" class="w-10 h-10 rounded-full sky-gradient flex items-center justify-center shadow-lg"><i class="fa-solid fa-plus"></i></button>
+                <div class="flex justify-between items-center">
+                    <h2 class="text-lg font-bold text-gray-800">想買清單</h2>
+                    <label class="bg-sky-500 text-white px-4 py-1.5 rounded-full text-xs font-bold cursor-pointer shadow-md">
+                        + 新增圖片
+                        <input type="file" @change="uploadShopImage" class="hidden" accept="image/*">
+                    </label>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
-                    <div v-for="(item, i) in shoppingList" :key="i" class="glass rounded-[24px] p-3 shadow-sm relative">
-                        <div class="w-full h-24 bg-sky-50 rounded-[18px] mb-3 flex items-center justify-center text-sky-200"><i class="fa-solid fa-bag-shopping text-2xl"></i></div>
-                        <h4 class="text-xs font-bold text-gray-800">{{item.name}}</h4>
-                        <div class="flex justify-between mt-3 items-center">
-                            <i @click="removeShopItem(i)" class="fa-solid fa-trash-can text-gray-300 text-xs"></i>
-                            <div @click="item.done = !item.done" :class="item.done ? 'bg-sky-500 text-white' : 'border border-gray-200'" class="w-6 h-6 rounded-full flex items-center justify-center transition-all">
-                                <i class="fa-solid fa-check text-[10px]"></i>
-                            </div>
+                    <div v-for="(item, i) in shopItems" :key="i" class="bg-white rounded-[24px] p-3 shadow-sm relative overflow-hidden">
+                        <div class="w-full h-32 bg-gray-100 rounded-[18px] mb-2 overflow-hidden border border-gray-50">
+                            <img :src="item.img" v-if="item.img" class="w-full h-full object-cover">
+                            <div v-else class="w-full h-full flex items-center justify-center text-gray-300 text-2xl"><i class="fa-solid fa-camera"></i></div>
                         </div>
+                        <h4 class="text-[11px] font-bold text-gray-700 truncate px-1">{{item.name}}</h4>
+                        <i @click="removeShopItem(i)" class="fa-solid fa-circle-xmark absolute top-1 right-1 text-red-400 bg-white rounded-full"></i>
                     </div>
                 </div>
             </section>
+
         </main>
 
-        <nav class="floating-nav flex items-center justify-around px-2">
-            <button @click="activeTab = 'plan'" :class="activeTab === 'plan' ? 'text-sky-600' : 'text-gray-400'" class="flex flex-col items-center"><i class="fa-solid fa-map-location-dot text-xl"></i><span class="text-[10px] mt-1 font-bold">行程</span></button>
-            <button @click="activeTab = 'money'" :class="activeTab === 'money' ? 'text-sky-600' : 'text-gray-400'" class="flex flex-col items-center"><i class="fa-solid fa-wallet text-xl"></i><span class="text-[10px] mt-1 font-bold">記帳</span></button>
-            <button @click="activeTab = 'shop'" :class="activeTab === 'shop' ? 'text-sky-600' : 'text-gray-400'" class="flex flex-col items-center"><i class="fa-solid fa-bag-shopping text-xl"></i><span class="text-[10px] mt-1 font-bold">購物</span></button>
+        <nav class="floating-nav glass rounded-[35px] flex items-center justify-around h-16 shadow-2xl px-2">
+            <button @click="activeTab = 'plan'" :class="activeTab === 'plan' ? 'text-sky-600' : 'text-gray-400'" class="flex flex-col items-center">
+                <i class="fa-solid fa-calendar-day"></i><span class="text-[10px] mt-1">行程</span>
+            </button>
+            <button @click="activeTab = 'money'" :class="activeTab === 'money' ? 'text-sky-600' : 'text-gray-400'" class="flex flex-col items-center">
+                <i class="fa-solid fa-wallet"></i><span class="text-[10px] mt-1">記帳</span>
+            </button>
+            <button @click="activeTab = 'shop'" :class="activeTab === 'shop' ? 'text-sky-600' : 'text-gray-400'" class="flex flex-col items-center">
+                <i class="fa-solid fa-bag-shopping"></i><span class="text-[10px] mt-1">購物</span>
+            </button>
         </nav>
     </div>
 
@@ -145,49 +135,87 @@
         createApp({
             setup() {
                 const activeTab = ref('plan')
-                const activeDate = ref(0)
+                const currentDay = ref(-1) // -1 代表「行前事項」
+                const totalDays = 5
                 const rate = ref(0.052)
-                const schedule = ref([])
+                
+                // 資料結構升級
+                const preTripList = ref([]) // 行前事項
+                const dailyPlans = ref({}) // 每日行程：{0: [], 1: [], ...}
+                const shopItems = ref([])
                 const expenses = ref([])
-                const shoppingList = ref([])
-                const newExp = ref({ item: '', amount: null, method: 'cash' })
+                const newExp = ref({ item: '', amount: null })
 
                 onMounted(() => {
-                    const savedPlan = localStorage.getItem('skyTrip_plan')
-                    const savedMoney = localStorage.getItem('skyTrip_money')
-                    const savedShop = localStorage.getItem('skyTrip_shop')
-                    const savedRate = localStorage.getItem('skyTrip_rate')
-                    if (savedPlan) schedule.value = JSON.parse(savedPlan)
-                    if (savedMoney) expenses.value = JSON.parse(savedMoney)
-                    if (savedShop) shoppingList.value = JSON.parse(savedShop)
-                    if (savedRate) rate.value = JSON.parse(savedRate)
+                    const savedData = localStorage.getItem('skyTrip_v3')
+                    if (savedData) {
+                        const parsed = JSON.parse(savedData)
+                        preTripList.value = parsed.preTripList || []
+                        dailyPlans.value = parsed.dailyPlans || {}
+                        shopItems.value = parsed.shopItems || []
+                        expenses.value = parsed.expenses || []
+                        rate.value = parsed.rate || 0.052
+                    }
                 })
 
-                watch([schedule, expenses, shoppingList, rate], () => {
-                    localStorage.setItem('skyTrip_plan', JSON.stringify(schedule.value))
-                    localStorage.setItem('skyTrip_money', JSON.stringify(expenses.value))
-                    localStorage.setItem('skyTrip_shop', JSON.stringify(shoppingList.value))
-                    localStorage.setItem('skyTrip_rate', JSON.stringify(rate.value))
+                watch([preTripList, dailyPlans, shopItems, expenses, rate], () => {
+                    const data = {
+                        preTripList: preTripList.value,
+                        dailyPlans: dailyPlans.value,
+                        shopItems: shopItems.value,
+                        expenses: expenses.value,
+                        rate: rate.value
+                    }
+                    localStorage.setItem('skyTrip_v3', JSON.stringify(data))
                 }, { deep: true })
 
-                const openMap = (loc) => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(loc)}`, '_blank')
-                const addSchedule = () => {
-                    const title = prompt("景點名稱？"); 
-                    const time = prompt("時間？ (如 14:00)");
-                    const loc = prompt("詳細地址或地標？");
-                    if (title) schedule.value.push({ time: time || '12:00', title, location: loc || title })
+                // 功能函數
+                const addPreItem = () => {
+                    const title = prompt("準備做咩？(如: 買旅遊保險)")
+                    if (title) preTripList.value.push({ title, done: false })
                 }
-                const removeSchedule = (i) => schedule.value.splice(i, 1)
-                const addExpense = () => { if (newExp.value.item && newExp.value.amount) { expenses.value.unshift({ ...newExp.value }); newExp.value = { item: '', amount: null, method: 'cash' } } }
-                const removeExpense = (i) => expenses.value.splice(i, 1)
-                const addShopItem = () => { const name = prompt("想買咩？"); if (name) shoppingList.value.push({ name, done: false }) }
-                const removeShopItem = (i) => shoppingList.value.splice(i, 1)
+                const removePreItem = (i) => preTripList.value.splice(i, 1)
 
-                const totalExpensesJPY = computed(() => expenses.value.reduce((s, e) => s + e.amount, 0))
-                const totalExpensesHKD = computed(() => (totalExpensesJPY.value * rate.value).toFixed(2))
-                const cashHKD = computed(() => (expenses.value.filter(e => e.method === 'cash').reduce((s, e) => s + e.amount, 0) * rate.value).toFixed(2))
+                const addDayPlan = () => {
+                    const title = prompt("景點名稱？")
+                    if (title) {
+                        if (!dailyPlans.value[currentDay.value]) dailyPlans.value[currentDay.value] = []
+                        dailyPlans.value[currentDay.value].push({
+                            time: prompt("時間？ (如 10:00)") || '12:00',
+                            title,
+                            location: prompt("地點？") || title
+                        })
+                        dailyPlans.value[currentDay.value].sort((a,b) => a.time.localeCompare(b.time))
+                    }
+                }
+                const removeDayPlan = (i) => dailyPlans.value[currentDay.value].splice(i, 1)
 
-                return { activeTab, activeDate, rate, schedule, expenses, shoppingList, newExp, openMap, addSchedule, removeSchedule, addExpense, removeExpense, addShopItem, removeShopItem, totalExpensesJPY, totalExpensesHKD, cashHKD }
+                const uploadShopImage = (event) => {
+                    const file = event.target.files[0]
+                    const name = prompt("物品名稱？") || '未命名'
+                    if (file) {
+                        const reader = new FileReader()
+                        reader.onload = (e) => {
+                            shopItems.value.push({ name, img: e.target.result })
+                        }
+                        reader.readAsDataURL(file)
+                    }
+                }
+                const removeShopItem = (i) => shopItems.value.splice(i, 1)
+
+                const addExp = () => {
+                    if (newExp.value.item && newExp.value.amount) {
+                        expenses.value.unshift({...newExp.value})
+                        newExp.value = { item: '', amount: null }
+                    }
+                }
+                const totalHKD = computed(() => expenses.value.reduce((s, e) => s + (e.amount * rate.value), 0).toFixed(0))
+                const openMap = (loc) => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(loc)}`, '_blank')
+
+                return { 
+                    activeTab, currentDay, totalDays, rate, preTripList, dailyPlans, shopItems, expenses, newExp,
+                    addPreItem, removePreItem, addDayPlan, removeDayPlan, uploadShopImage, removeShopItem, addExp, totalHKD, openMap
+                }
             }
         }).mount('#app')
     </script>
