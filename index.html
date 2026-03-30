@@ -3,262 +3,225 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sky Trip Pro Max</title>
+    <title>Fuji Trip - Final Secure</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
-        body { font-family: 'Noto Sans TC', sans-serif; background: #F0F9FF; color: #1E293B; }
-        .glass { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.4); }
-        .sky-gradient { background: linear-gradient(135deg, #7DD3FC 0%, #0EA5E9 100%); color: white; }
-        .flight-card { background: linear-gradient(135deg, #6366F1 0%, #3B82F6 100%); color: white; }
-        .floating-nav { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 400px; z-index: 100; }
+        body { font-family: 'Noto Sans TC', sans-serif; background: #000; color: #1E293B; overflow-x: hidden; }
+        .fuji-bg {
+            background: url('https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=2070&auto=format&fit=crop') no-repeat center center fixed;
+            background-size: cover; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+        }
+        .glass { background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.4); border-radius: 32px; }
+        .floating-nav { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 400px; z-index: 100; border-radius: 40px; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .tab-active { color: #0EA5E9; border-bottom: 3px solid #0EA5E9; }
+        .jp-card { min-width: 140px; background: rgba(255,255,255,0.9); border-radius: 20px; padding: 12px; border-left: 4px solid #0EA5E9; }
     </style>
 </head>
 <body>
-    <div id="app" class="max-w-[430px] mx-auto min-h-screen pb-40">
+    <div class="fuji-bg"></div>
+    <div id="app" class="max-w-[430px] mx-auto min-h-screen pb-52">
         
-        <header class="p-6 flex justify-between items-center bg-white/60 sticky top-0 z-50 backdrop-blur-md">
-            <div>
-                <h1 class="text-xl font-bold text-sky-900">Tokyo Family Trip 🇯🇵</h1>
-                <p class="text-[10px] text-sky-500 font-medium">1 JPY ≈ {{rate}} HKD</p>
+        <header class="p-6 space-y-3 sticky top-0 z-50">
+            <div class="flex justify-between items-center">
+                <div class="glass px-4 py-2">
+                    <h1 class="text-base font-bold text-sky-900">Tokyo Trip 🗻</h1>
+                    <p class="text-[9px] text-sky-600 font-bold">1 JPY ≈ {{rate}} HKD</p>
+                </div>
+                <div class="glass px-4 py-2 flex items-center gap-2">
+                    <i class="fa-solid fa-cloud-sun text-orange-400"></i>
+                    <div class="text-right">
+                        <p class="text-[10px] font-bold text-gray-700">Tokyo 18°C</p>
+                    </div>
+                </div>
             </div>
-            <input v-model.number="rate" type="number" step="0.001" class="w-16 text-xs bg-sky-50 rounded-lg px-2 py-1 border border-sky-100 shadow-inner">
         </header>
 
+        <div class="px-6 mb-4">
+            <div class="flex gap-3 overflow-x-auto no-scrollbar pb-2">
+                <div v-for="jp in jpCards" :key="jp.zh" class="jp-card shadow-md flex-shrink-0">
+                    <p class="text-[8px] text-gray-400 font-bold uppercase">{{jp.py}}</p>
+                    <p class="text-xs font-bold text-sky-900 my-1">{{jp.jp}}</p>
+                    <p class="text-[10px] text-gray-600 border-t pt-1 mt-1">{{jp.zh}}</p>
+                </div>
+            </div>
+        </div>
+
         <div class="no-scrollbar flex gap-3 px-6 overflow-x-auto py-4">
-            <button @click="currentDay = -1" :class="currentDay === -1 ? 'bg-orange-400 text-white' : 'bg-white text-orange-400'" class="px-5 py-3 rounded-2xl flex-shrink-0 font-bold shadow-sm border border-orange-50">
-                📝 行前/行李
-            </button>
-            <button v-for="(d, i) in totalDays" :key="i" @click="currentDay = i" :class="currentDay === i ? 'bg-sky-500 text-white' : 'bg-white text-sky-500'" class="px-5 py-3 rounded-2xl flex-shrink-0 font-bold shadow-sm border border-sky-50 text-center">
-                <span class="block text-[10px] opacity-70">Day {{i+1}}</span>
-                <span>0{{8+i}}</span>
-            </button>
+            <button v-for="i in 5" :key="i" @click="currentDay = i-1" :class="currentDay === i-1 ? 'bg-sky-500 text-white shadow-lg' : 'glass text-sky-700'" class="px-6 py-3 flex-shrink-0 font-bold rounded-3xl transition-all">Day {{i}}</button>
         </div>
 
         <main class="px-5 space-y-6">
-            
-            <section v-if="currentDay === -1" class="space-y-6 animate-fadeIn">
-                <div>
-                    <div class="flex justify-between items-center mb-3">
-                        <h2 class="font-bold text-gray-800">📌 重要待辦</h2>
-                        <button @click="addPreItem" class="text-[10px] bg-orange-100 text-orange-600 px-3 py-1 rounded-full font-bold">+ 新增</button>
-                    </div>
-                    <div class="space-y-2">
-                        <div v-for="(item, i) in preTripList" :key="i" class="glass rounded-xl p-4 flex items-center justify-between">
-                            <div class="flex items-center gap-3" @click="item.done = !item.done">
-                                <i :class="item.done ? 'fa-solid fa-circle-check text-green-500' : 'fa-regular fa-circle text-gray-300'" class="text-xl"></i>
-                                <span :class="item.done ? 'line-through text-gray-400' : ''" class="text-sm font-medium">{{item.title}}</span>
-                            </div>
-                            <i @click="removePreItem(i)" class="fa-solid fa-trash text-gray-200 text-xs"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <div>
-                    <div class="flex justify-between items-center mb-3">
-                        <h2 class="font-bold text-gray-800">🧳 行李清單 (BB用品/個人)</h2>
-                        <button @click="addPackItem" class="text-[10px] bg-blue-100 text-blue-600 px-3 py-1 rounded-full font-bold">+ 新增物品</button>
-                    </div>
-                    <div class="grid grid-cols-1 gap-2">
-                        <div v-for="(item, i) in packingList" :key="i" class="bg-white/80 rounded-xl p-3 flex items-center justify-between border border-blue-50">
-                            <div class="flex items-center gap-3" @click="item.done = !item.done">
-                                <i :class="item.done ? 'fa-solid fa-square-check text-blue-500' : 'fa-regular fa-square text-gray-300'" class="text-xl"></i>
-                                <span :class="item.done ? 'line-through text-gray-400' : ''" class="text-sm">{{item.title}}</span>
-                            </div>
-                            <i @click="removePackItem(i)" class="fa-solid fa-xmark text-gray-200 text-xs"></i>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section v-if="activeTab === 'plan' && currentDay >= 0" class="space-y-4">
-                <div class="flex justify-between items-center">
-                    <h2 class="text-lg font-bold">Day {{currentDay+1}} 行程</h2>
-                    <div class="flex gap-2">
-                        <button @click="addFlight" class="bg-indigo-500 text-white px-3 py-1.5 rounded-full text-[10px] font-bold shadow-sm">✈️ 加航班</button>
-                        <button @click="addDayPlan" class="bg-sky-500 text-white px-3 py-1.5 rounded-full text-[10px] font-bold shadow-sm">+ 行程</button>
-                    </div>
-                </div>
-
-                <div v-for="(p, i) in dailyPlans[currentDay]" :key="i">
-                    <div v-if="p.type === 'flight'" class="flight-card rounded-[28px] p-6 shadow-lg relative overflow-hidden mb-4">
-                        <div class="flex justify-between items-center mb-4 relative z-10">
-                            <span class="text-[10px] font-bold bg-white/20 px-2 py-1 rounded-md">FLIGHT {{p.flightNo}}</span>
-                            <i @click="removeDayPlan(i)" class="fa-solid fa-xmark opacity-50"></i>
-                        </div>
-                        <div class="flex justify-between items-center relative z-10">
-                            <div class="text-center">
-                                <h4 class="text-2xl font-bold">{{p.from}}</h4>
-                                <p class="text-[10px] opacity-80">{{p.time}}</p>
-                            </div>
-                            <div class="flex-1 flex flex-col items-center px-4">
-                                <div class="w-full border-t border-dashed border-white/40 relative">
-                                    <i class="fa-solid fa-plane absolute -top-2 left-1/2 -translate-x-1/2"></i>
-                                </div>
-                            </div>
-                            <div class="text-center">
-                                <h4 class="text-2xl font-bold">{{p.to}}</h4>
-                                <p class="text-[10px] opacity-80">抵達</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div v-else class="glass rounded-[24px] p-5 flex gap-4 shadow-sm border-l-4 border-sky-400 mb-3">
-                        <div class="w-12 text-center border-r border-sky-100 flex-shrink-0">
-                            <p class="font-bold text-sky-700">{{p.time}}</p>
-                        </div>
-                        <div class="flex-1">
-                            <h3 class="font-bold text-sm">{{p.title}}</h3>
-                            <p class="text-[10px] text-sky-400 mb-2"><i class="fa-solid fa-location-dot"></i> {{p.location}}</p>
-                            <button @click="openMap(p.location)" class="text-[9px] bg-sky-50 text-sky-600 px-2 py-1 rounded border border-sky-100 font-bold">導航</button>
-                        </div>
-                        <i @click="removeDayPlan(i)" class="fa-solid fa-trash text-gray-200 text-xs"></i>
-                    </div>
-                </div>
-            </section>
-
-            <section v-if="activeTab === 'money'" class="space-y-4">
-                <div class="sky-gradient rounded-[32px] p-8 text-center shadow-xl">
-                    <p class="text-[10px] opacity-90 mb-1">總預算進度 (HKD)</p>
-                    <h2 class="text-4xl font-bold">$ {{totalHKD}}</h2>
-                </div>
-                <div class="glass rounded-[24px] p-5 space-y-3">
-                    <input v-model="newExp.item" placeholder="支出項目 (如: 買奶粉)" class="w-full p-3 rounded-xl bg-white border-none text-sm shadow-sm">
-                    <div class="flex gap-2">
-                        <input v-model.number="newExp.amount" type="number" placeholder="日幣 ¥" class="flex-1 p-3 rounded-xl bg-white border-none text-sm shadow-sm">
-                        <button @click="addExp" class="bg-sky-600 text-white px-6 rounded-xl font-bold shadow-lg">記帳</button>
-                    </div>
-                </div>
-                <div class="space-y-2">
-                    <div v-for="(exp, i) in expenses" :key="i" class="bg-white/70 p-4 rounded-2xl flex justify-between items-center shadow-sm">
-                        <span class="text-sm font-medium">{{exp.item}}</span>
-                        <div class="text-right">
-                            <p class="text-sky-600 font-bold text-sm">$ {{(exp.amount * rate).toFixed(0)}}</p>
-                            <p class="text-[9px] text-gray-400">¥ {{exp.amount}}</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
             <section v-if="activeTab === 'shop'" class="space-y-4">
-                <div class="flex justify-between items-center">
-                    <h2 class="text-lg font-bold">想買清單</h2>
-                    <label class="bg-sky-500 text-white px-4 py-1.5 rounded-full text-xs font-bold cursor-pointer shadow-md">
-                        + 上載相片 <input type="file" @change="uploadShopImage" class="hidden" accept="image/*">
-                    </label>
+                <div class="flex justify-between items-center px-1">
+                    <h2 class="text-white font-bold drop-shadow-md text-lg">Shopping List 🛍️</h2>
+                    <button @click="openEditModal(null)" class="bg-white/90 text-pink-500 px-4 py-1.5 rounded-full text-xs font-bold shadow-lg">+ 新增</button>
                 </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div v-for="(item, i) in shopItems" :key="i" class="bg-white rounded-[24px] p-3 shadow-sm relative border border-gray-50">
-                        <div class="w-full h-32 bg-gray-50 rounded-[18px] mb-2 overflow-hidden">
-                            <img :src="item.img" v-if="item.img" class="w-full h-full object-cover">
-                            <div v-else class="w-full h-full flex items-center justify-center text-gray-200"><i class="fa-solid fa-camera text-2xl"></i></div>
+                <div v-for="(item, i) in shopItems" :key="i" class="glass p-4 flex gap-4">
+                    <div class="w-20 h-20 rounded-xl overflow-hidden bg-white flex-shrink-0">
+                        <img v-if="item.img" :src="item.img" class="w-full h-full object-cover">
+                        <div v-else class="h-full flex items-center justify-center text-gray-200"><i class="fa-solid fa-camera"></i></div>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between">
+                            <h4 class="font-bold text-gray-800 text-sm">{{item.name}}</h4>
+                            <div class="flex gap-3">
+                                <i @click="openEditModal(i)" class="fa-solid fa-pen text-sky-400 text-xs cursor-pointer"></i>
+                                <i @click="removeShopItem(i)" class="fa-solid fa-trash text-gray-200 text-xs cursor-pointer"></i>
+                            </div>
                         </div>
-                        <h4 class="text-[10px] font-bold text-gray-700 truncate">{{item.name}}</h4>
-                        <i @click="removeShopItem(i)" class="fa-solid fa-circle-xmark absolute top-1 right-1 text-red-400 bg-white rounded-full"></i>
+                        <p class="text-pink-600 font-bold text-xs mt-1">HKD ${{item.price}}</p>
+                        <p class="text-[9px] text-gray-500 mt-1 italic">{{item.desc}}</p>
                     </div>
                 </div>
             </section>
 
+            <section v-if="activeTab === 'plan'" class="space-y-4">
+                <div class="flex justify-between items-center px-1">
+                    <h2 class="text-white font-bold drop-shadow-md text-lg">Day {{currentDay+1}} 行程</h2>
+                    <button @click="addDayPlan" class="bg-white/90 text-sky-600 px-4 py-1.5 rounded-full text-xs font-bold shadow-lg">+ 加行程</button>
+                </div>
+                <div v-for="(p, i) in dailyPlans[currentDay]" :key="i" class="glass p-5 mb-3 shadow-md">
+                    <div class="flex justify-between items-center">
+                        <div class="flex gap-3">
+                            <span class="text-sky-800 font-bold text-sm">{{p.time}}</span>
+                            <span class="font-bold text-gray-700 text-sm">{{p.title}}</span>
+                        </div>
+                        <button @click="movePlan(currentDay, i)" class="text-[9px] bg-sky-100 text-sky-600 px-3 py-1 rounded-full font-bold">搬位</button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="pt-10 pb-10">
+                <div class="glass p-6 space-y-4 border-dashed border-2 border-sky-200">
+                    <h3 class="text-xs font-bold text-sky-800 flex items-center gap-2">
+                        <i class="fa-solid fa-shield-halved"></i> 資料保險箱 (備份用)
+                    </h3>
+                    <div class="flex gap-3">
+                        <button @click="exportData" class="flex-1 bg-sky-600 text-white py-3 rounded-2xl text-[11px] font-bold shadow-lg">
+                            <i class="fa-solid fa-download mr-1"></i> 備份資料
+                        </button>
+                        <label class="flex-1 bg-white text-sky-600 border border-sky-600 py-3 rounded-2xl text-[11px] font-bold text-center cursor-pointer shadow-sm">
+                            <i class="fa-solid fa-upload mr-1"></i> 還原備份
+                            <input type="file" @change="importData" class="hidden">
+                        </label>
+                    </div>
+                    <p class="text-[9px] text-gray-400 text-center italic">※ 建議每星期備份一次，將備份檔儲存在 Email 或雲端。</p>
+                </div>
+            </section>
         </main>
 
-        <nav class="floating-nav glass rounded-[35px] flex items-center justify-around h-16 shadow-2xl">
+        <div v-if="showModal" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm">
+            <div class="bg-white w-full rounded-[32px] p-6 space-y-4 animate-pop">
+                <h3 class="font-bold text-gray-800">編輯清單項目</h3>
+                <input v-model="editItem.name" placeholder="項目名稱" class="w-full border p-3 rounded-xl bg-gray-50">
+                <input v-model.number="editItem.price" type="number" placeholder="HKD 價錢" class="w-full border p-3 rounded-xl bg-gray-50">
+                <textarea v-model="editItem.desc" placeholder="備註/收件人" class="w-full border p-3 rounded-xl bg-gray-50"></textarea>
+                <div class="text-xs text-gray-400 ml-1">上傳相片：</div>
+                <input type="file" @change="handleImageUpload" class="text-xs w-full">
+                <div class="flex gap-3 pt-2">
+                    <button @click="showModal = false" class="flex-1 py-3 bg-gray-100 rounded-2xl font-bold text-gray-500">取消</button>
+                    <button @click="saveShopItem" class="flex-1 py-3 bg-sky-500 text-white rounded-2xl font-bold shadow-lg">儲存</button>
+                </div>
+            </div>
+        </div>
+
+        <nav class="floating-nav glass flex items-center justify-around h-16 shadow-2xl">
             <button @click="activeTab = 'plan'" :class="activeTab === 'plan' ? 'text-sky-600' : 'text-gray-400'" class="flex flex-col items-center">
-                <i class="fa-solid fa-calendar-check text-lg"></i><span class="text-[9px] mt-1 font-bold">行程</span>
-            </button>
-            <button @click="activeTab = 'money'" :class="activeTab === 'money' ? 'text-sky-600' : 'text-gray-400'" class="flex flex-col items-center">
-                <i class="fa-solid fa-wallet text-lg"></i><span class="text-[9px] mt-1 font-bold">記帳</span>
+                <i class="fa-solid fa-map-location-dot text-lg"></i><span class="text-[9px] mt-1 font-bold">行程</span>
             </button>
             <button @click="activeTab = 'shop'" :class="activeTab === 'shop' ? 'text-sky-600' : 'text-gray-400'" class="flex flex-col items-center">
-                <i class="fa-solid fa-bag-shopping text-lg"></i><span class="text-[9px] mt-1 font-bold">購物</span>
+                <i class="fa-solid fa-shopping-bag text-lg"></i><span class="text-[9px] mt-1 font-bold">購物</span>
             </button>
         </nav>
     </div>
 
     <script>
-        const { createApp, ref, computed, watch, onMounted } = Vue
+        const { createApp, ref, onMounted, watch } = Vue
         createApp({
             setup() {
-                const activeTab = ref('plan')
-                const currentDay = ref(-1)
-                const totalDays = 5
-                const rate = ref(0.052)
-                
-                const preTripList = ref([])
-                const packingList = ref([]) // 新增：行李清單
-                const dailyPlans = ref({})
-                const shopItems = ref([])
-                const expenses = ref([])
-                const newExp = ref({ item: '', amount: null })
+                const activeTab = ref('plan'), currentDay = ref(0), rate = ref(0.052), showModal = ref(false);
+                const dailyPlans = ref({0:[], 1:[], 2:[], 3:[], 4:[]}), shopItems = ref([]), editingIndex = ref(null);
+                const editItem = ref({name:'', price:null, desc:'', url:'', img:''});
+
+                const jpCards = [
+                    { zh: '唔該/謝謝', jp: 'ありがとう', py: 'Arigato' },
+                    { zh: '廁所喺邊度？', jp: 'トイレはどこですか？', py: 'Toire wa doko?' },
+                    { zh: '想要熱水 (沖奶)', jp: 'お湯をください', py: 'Oyu wo kudasai' },
+                    { zh: '可以借哺乳室嗎？', jp: '授乳室はありますか？', py: 'Junyushitsu wa?' },
+                    { zh: '對唔住/借過', jp: 'すみません', py: 'Sumimasen' }
+                ];
+
+                const STORAGE_KEY = 'fujiTrip_final_v1';
 
                 onMounted(() => {
-                    const saved = localStorage.getItem('skyTrip_vProMax')
-                    if (saved) {
-                        const parsed = JSON.parse(saved)
-                        preTripList.value = parsed.preTripList || []
-                        packingList.value = parsed.packingList || []
-                        dailyPlans.value = parsed.dailyPlans || {}
-                        shopItems.value = parsed.shopItems || []
-                        expenses.value = parsed.expenses || []
-                        rate.value = parsed.rate || 0.052
+                    const saved = localStorage.getItem(STORAGE_KEY);
+                    if(saved) {
+                        const data = JSON.parse(saved);
+                        dailyPlans.value = data.dailyPlans || {0:[], 1:[], 2:[], 3:[], 4:[]};
+                        shopItems.value = data.shopItems || [];
+                        rate.value = data.rate || 0.052;
                     }
-                })
+                });
 
-                watch([preTripList, packingList, dailyPlans, shopItems, expenses, rate], () => {
-                    localStorage.setItem('skyTrip_vProMax', JSON.stringify({
-                        preTripList: preTripList.value,
-                        packingList: packingList.value,
-                        dailyPlans: dailyPlans.value,
-                        shopItems: shopItems.value,
-                        expenses: expenses.value,
-                        rate: rate.value
-                    }))
-                }, { deep: true })
+                watch([dailyPlans, shopItems, rate], () => {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify({ dailyPlans: dailyPlans.value, shopItems: shopItems.value, rate: rate.value }));
+                }, { deep: true });
 
-                const addPreItem = () => { const t = prompt("準備事項？"); if(t) preTripList.value.push({title: t, done: false}) }
-                const removePreItem = (i) => preTripList.value.splice(i, 1)
-                
-                const addPackItem = () => { const t = prompt("要帶咩？(如: 奶粉 3 罐)"); if(t) packingList.value.push({title: t, done: false}) }
-                const removePackItem = (i) => packingList.value.splice(i, 1)
+                // 備份功能
+                const exportData = () => {
+                    const data = localStorage.getItem(STORAGE_KEY);
+                    if(!data) return alert("仲未有資料可以備份呀！");
+                    const blob = new Blob([data], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `Japan_Trip_Backup_${new Date().getMonth()+1}${new Date().getDate()}.txt`;
+                    a.click();
+                };
 
-                const addDayPlan = () => {
-                    const t = prompt("行程名稱？");
-                    if(t) {
-                        if(!dailyPlans.value[currentDay.value]) dailyPlans.value[currentDay.value] = []
-                        dailyPlans.value[currentDay.value].push({ type: 'normal', time: prompt("時間？") || '12:00', title: t, location: prompt("地點？") || t })
-                        dailyPlans.value[currentDay.value].sort((a,b)=>a.time.localeCompare(b.time))
-                    }
-                }
-                
-                const addFlight = () => {
-                    const no = prompt("航班編號？ (如: HB320)");
-                    if(no) {
-                        if(!dailyPlans.value[currentDay.value]) dailyPlans.value[currentDay.value] = []
-                        dailyPlans.value[currentDay.value].unshift({ 
-                            type: 'flight', flightNo: no, 
-                            from: prompt("起飛地？ (如: HKG)") || 'HKG', 
-                            to: prompt("目的地？ (如: NRT)") || 'NRT', 
-                            time: prompt("起飛時間？ (如: 09:05)") || '09:05' 
-                        })
-                    }
-                }
-                
-                const removeDayPlan = (i) => dailyPlans.value[currentDay.value].splice(i, 1)
+                const importData = (e) => {
+                    const file = e.target.files[0];
+                    if(!file) return;
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        try {
+                            const content = ev.target.result;
+                            JSON.parse(content);
+                            localStorage.setItem(STORAGE_KEY, content);
+                            alert("還原成功！網頁即將重新整理...");
+                            location.reload();
+                        } catch(err) { alert("備份檔格式不正確！"); }
+                    };
+                    reader.readAsText(file);
+                };
 
-                const uploadShopImage = (e) => {
-                    const f = e.target.files[0]; const n = prompt("物品名？") || '未命名'
-                    if(f) { const r = new FileReader(); r.onload=(ev)=>shopItems.value.push({name:n, img:ev.target.result}); r.readAsDataURL(f) }
-                }
-                const removeShopItem = (i) => shopItems.value.splice(i, 1)
+                // 其他功能 (新增/編輯/搬位)
+                const openEditModal = (idx) => {
+                    editingIndex.value = idx;
+                    editItem.value = idx !== null ? { ...shopItems.value[idx] } : { name:'', price:null, desc:'', url:'', img:'' };
+                    showModal.value = true;
+                };
+                const handleImageUpload = (e) => {
+                    const f = e.target.files[0];
+                    if(f){ const r = new FileReader(); r.onload=(ev)=>editItem.value.img=ev.target.result; r.readAsDataURL(f); }
+                };
+                const saveShopItem = () => {
+                    if(editingIndex.value !== null) shopItems.value[editingIndex.value] = { ...editItem.value };
+                    else shopItems.value.push({ ...editItem.value });
+                    showModal.value = false;
+                };
+                const removeShopItem = (i) => { if(confirm('刪除？')) shopItems.value.splice(i,1) };
+                const addDayPlan = () => { const t = prompt("景點？"); if(t) dailyPlans.value[currentDay.value].push({ time: prompt("時間？")||'12:00', title: t }); };
+                const movePlan = (d, i) => {
+                    const target = prompt("搬去第幾日？(1-5)");
+                    const dIdx = parseInt(target)-1;
+                    if(dIdx>=0 && dIdx<5) dailyPlans.value[dIdx].push(dailyPlans.value[d].splice(i, 1)[0]);
+                };
 
-                const addExp = () => { if(newExp.value.item && newExp.value.amount) { expenses.value.unshift({...newExp.value}); newExp.value = {item:'', amount:null} } }
-                const totalHKD = computed(() => expenses.value.reduce((s,e)=>s+(e.amount*rate.value),0).toFixed(0))
-                const openMap = (l) => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(l)}`, '_blank')
-
-                return { activeTab, currentDay, totalDays, rate, preTripList, packingList, dailyPlans, shopItems, expenses, newExp, addPreItem, removePreItem, addPackItem, removePackItem, addDayPlan, addFlight, removeDayPlan, uploadShopImage, removeShopItem, addExp, totalHKD, openMap }
+                return { activeTab, currentDay, rate, dailyPlans, shopItems, jpCards, showModal, editItem, openEditModal, handleImageUpload, saveShopItem, removeShopItem, addDayPlan, movePlan, exportData, importData }
             }
         }).mount('#app')
     </script>
